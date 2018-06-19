@@ -1,74 +1,81 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
-import {
-    Collapse,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink,
-    Container,
-    Row,
-    Col,
-    Jumbotron,
-    Button
-} from 'reactstrap';
+// Material-UI
+import RaisedButton from 'material-ui/RaisedButton'
+import TextField from 'material-ui/TextField'
 
-class App extends Component {
-    constructor(props) {
-        super(props);
+// Theme
+import { deepOrange500 } from 'material-ui/styles/colors'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
-        this.toggle = this.toggle.bind(this);
-        this.state = {
-            isOpen: false
-        };
-    }
-    toggle() {
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
-    }
-    render() {
-        return (
-            <div>
-                <Navbar color="inverse" light expand="md">
-                    <NavbarBrand href="/">reactstrap</NavbarBrand>
-                    <NavbarToggler onClick={this.toggle} />
-                    <Collapse isOpen={this.state.isOpen} navbar>
-                        <Nav className="ml-auto" navbar>
-                            <NavItem>
-                                <NavLink href="/components/">Components</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink href="https://github.com/reactstrap/reactstrap">Github</NavLink>
-                            </NavItem>
-                        </Nav>
-                    </Collapse>
-                </Navbar>
-                <Jumbotron>
-                    <Container>
-                        <Row>
-                            <Col>
-                                <h1>Welcome to React</h1>
-                                <p>
-                                    <Button
-                                        tag="a"
-                                        color="success"
-                                        size="large"
-                                        href="http://reactstrap.github.io"
-                                        target="_blank"
-                                    >
-                                        View Reactstrap Docs
-                                    </Button>
-                                </p>
-                            </Col>
-                        </Row>
-                    </Container>
-                </Jumbotron>
-            </div>
-        );
-    }
+// Font
+import 'typeface-roboto'
+
+// Click handler
+import injectTapEventPlugin from 'react-tap-event-plugin'
+injectTapEventPlugin()
+
+// Styles
+const styles = {
+	container: {
+		textAlign: 'center',
+		paddingTop: 50
+	}
 }
 
-export default App;
+// Theme
+const muiTheme = getMuiTheme({
+	palette: {
+		accent1Color: deepOrange500
+	}
+})
+
+class App extends Component {
+	constructor (props, context) {
+		super(props, context)
+
+		// Default text
+		this.state = {
+			text: 'Young Thug - Digits'
+		}
+	}
+
+	onSubmit = e => {
+		// No real submit
+		e.preventDefault()
+
+		// Get input value
+		const text = this.refs.cool_text.input.value
+
+		// Set state
+		this.setState({
+			text
+		})
+
+		// Do something with text
+		alert(`You said : ${text}`)
+	}
+
+	render () {
+		return (
+			<MuiThemeProvider muiTheme={muiTheme}>
+			<div style={styles.container}>
+			<h1>Playlist Finesser</h1>
+			<h2>Create playlists from any song on the web.</h2>
+			<form onSubmit={this.onSubmit}>
+			<TextField
+			ref='cool_text'
+			floatingLabelText='Type a song below:'
+			defaultValue={this.state.text}
+			/>
+			<br />
+			<RaisedButton type='submit' label='Search' primary />
+			</form>
+			</div>
+			</MuiThemeProvider>
+		)
+	}
+}
+
+export default App
