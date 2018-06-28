@@ -1,81 +1,115 @@
-import React, { Component } from 'react'
+import debounce             from 'lodash.debounce';
+import React, { Component } from 'react';
+import                           './App.css';
+import Config               from './config';
+import SearchBar            from './components/SearchBar';
+import VideoDetail          from './components/VideoDetail';
+import VideoList            from './components/VideoList';
+import SongQueue            from './components/SongQueue';
+import YTSearch             from 'youtube-api-search';
+import Footer               from './components/Footer';
 
-// Material-UI
-import RaisedButton from 'material-ui/RaisedButton'
-import TextField from 'material-ui/TextField'
+import {
+    Collapse,
+    Navbar,
+    NavbarToggler,
+    NavbarBrand,
+    Nav,
+    NavItem,
+    NavLink,
+    Container,
+    Col,
+    Row,
+    Button
+} from 'reactstrap';
 
-// Theme
-import { deepOrange500 } from 'material-ui/styles/colors'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-
-// Font
-import 'typeface-roboto'
-
-// Click handler
-import injectTapEventPlugin from 'react-tap-event-plugin'
-injectTapEventPlugin()
-
-// Styles
-const styles = {
-	container: {
-		textAlign: 'center',
-		paddingTop: 50
-	}
-}
-
-// Theme
-const muiTheme = getMuiTheme({
-	palette: {
-		accent1Color: deepOrange500
-	}
-})
+const REACT_APP_API_KEY = Config.YT_API_KEY;
 
 class App extends Component {
-	constructor (props, context) {
-		super(props, context)
+    constructor(props) {
+        super(props);
+        this.toggle = this.toggle.bind(this);
+        this.state = {
+            videos: [], // holds 5 videos fetched from API
+            selectedVideo: null, 
+            isOpen: false
+        };
 
-		// Default text
-		this.state = {
-			text: 'Young Thug - Digits'
-		}
-	}
+        this.videoSearch('type beat'); // default search term
+    }
+    toggle() {
+        this.setState({
+            isOpen: !this.state.isOpen
+        });
+    }
+    // function for search term
+    videoSearch(term) {
+        YTSearch(
+            {
+                key: REACT_APP_API_KEY,
+                term: term
+            },
+            videos => {
+                this.setState({ videos: videos, selectedVideo: videos[0] }); // through states setting the default video
+            }
+        );
+    }
+    render() {
+        // for consistent ui such that it re-renders after 300ms on search
+        const videoSearch = debounce(term => {
+            this.videoSearch(term);
+        }, 300);
 
-	onSubmit = e => {
-		// No real submit
-		e.preventDefault()
+        return (
+            <div>
 
-		// Get input value
-		const text = this.refs.cool_text.input.value
+            <Navbar color="inverse" light expand="md">
+            <NavbarBrand href="/">FINESSE.FM</NavbarBrand>
+            <NavbarToggler onClick={this.toggle} />
+            <Collapse isOpen={this.state.isOpen} navbar>
+            <Nav className="ml-auto" navbar>
+            <NavItem>
+            <NavLink href="#">Register</NavLink>
+            </NavItem>
+            <NavItem>
+            <NavLink href="#">Sign In</NavLink>
+            </NavItem>
+            </Nav>
+            </Collapse>
+            </Navbar>
 
-		// Set state
-		this.setState({
-			text
-		})
+            <Container>
+            <Row>
+            <Col md="3">
+            <SearchBar onSearchTermChange={videoSearch} />
+            <VideoDetail video={this.state.selectedVideo} />
+            <VideoList
+            videos={ this.state.videos }
+            onVideoSelect = { selectedVideo => {
+                this.setState({ selectedVideo });
+            }
+            }
+            />
+            <Button
+            tag="a"
+            className="btn btn-primary"
+            size="small"
+            href="#"
+            target="_blank"
+            >
+            Add Songs to Playlist
+            </Button>
+            </Col>
+            <Col md="8">
+            <SongQueue playlist = {this.state.selectedPlaylist} />
+            </Col>
+            </Row>
+            </Container>
 
-		// Do something with text
-		alert(`You said : ${text}`)
-	}
-
-	render () {
-		return (
-			<MuiThemeProvider muiTheme={muiTheme}>
-			<div style={styles.container}>
-			<h1>Playlist Finesser</h1>
-			<h2>Create playlists from any song on the web.</h2>
-			<form onSubmit={this.onSubmit}>
-			<TextField
-			ref='cool_text'
-			floatingLabelText='Type a song below:'
-			defaultValue={this.state.text}
-			/>
-			<br />
-			<RaisedButton type='submit' label='Search' primary />
-			</form>
-			</div>
-			</MuiThemeProvider>
-		)
-	}
+            <Footer/>
+            </div>
+        );
+    }
 }
 
-export default App
+export default App;

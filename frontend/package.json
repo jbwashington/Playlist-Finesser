@@ -14,8 +14,10 @@
     "react-popper": "^1.0.0",
     "react-scripts": "1.1.4",
     "react-tap-event-plugin": "^3.0.3",
+    "react-timestamp": "^4.4.0",
     "reactstrap": "^6.1.0",
-    "typeface-roboto": "0.0.54"
+    "typeface-roboto": "0.0.54",
+    "youtube-api-search": "^0.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
