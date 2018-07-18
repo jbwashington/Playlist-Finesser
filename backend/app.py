@@ -1,28 +1,40 @@
 #!flask/bin/python
-from flask import Flask, jsonify, json, request
-from flask_restful import Resource, Api
-from utils import get_info, get_track
+
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
-api = Api(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-tracks = {}
+db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
-class Track(Resource):
-    def get(self, track_id):
-        pass
-    def put(self, track_id):
-        pass
-    def delete(self, track_id):
-        pass
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
 
-class Playlist(Resource):
-    def delete(self, track_id):
-        pass
-    def post(self, track_id):
-        pass
+class Playlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_name = db.Column(db.String(250))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref='playlists')
 
-api.add_resource(Track, '/<string:track_id>')
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+
+class PlaylistSchema(ma.ModelSchema):
+    class Meta:
+        model = Playlist
+
+
+@app.route('/')
+def index():
+    one_user = User.query.first()
+    user_schema = UserSchema()
+    output = user_schema.dump(one_user).data # serialize python object into json
+    return jsonify({'user' : output})
 
 if __name__ == '__main__':
     app.run(debug=True)
