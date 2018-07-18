@@ -1,31 +1,33 @@
 import React from 'react';
 import './VideoListItem.css';
+import { Row, Col } from 'reactstrap';
 
 const VideoListItem = ({ video, onVideoSelect }) => {
-	const imageUrl = video.snippet.thumbnails.default.url;
-	const title = video.snippet.title;
 
-	return (
-		<div className="box related-list">
-			<article className="media related-card">
-				<div className="media-left">
-					<figure className="image">
-						<img src={imageUrl} alt="" onClick={() => onVideoSelect(video)} />
-					</figure>
-				</div>
-				&nbsp;
-				<div className="media-content">
-					<div className="content">
-						<p>
-							<span onClick={() => onVideoSelect(video)}>
-								{title}
-							</span>
-						</p>
-					</div>
-				</div>
-			</article>
-		</div>
-	);
+  const imageUrl = video.snippet.thumbnails.default.url;
+  // const videoId = video.id.videoId;
+  const title = video.snippet.title;
+
+  return (
+    <li className="list-group-item">
+      <Row>
+        <Col xs="3">
+          <img className="img-fluid" src={imageUrl} alt="" onClick={() => onVideoSelect(video)} />
+        </Col>
+        <Col xs="7">
+          <span onClick={() => onVideoSelect(video)}>
+            {title}
+          </span>
+        </Col>
+        <Col xs="2">
+          <a href="{ videoId }">
+          </a>
+          <a href="{ videoId }">
+          </a>
+        </Col>
+      </Row>
+    </li>
+  );
 };
 
 export default VideoListItem;
