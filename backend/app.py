@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_restful import Resource, Api
+from flask_cors import CORS
 import youtube_dl
 
 class MyLogger(object):
@@ -29,45 +30,29 @@ ydl_opts = {
         'format'                     : 'bestaudio/best[ext!=webm]', # get the best quality
         'extractaudio'               : True,  # only keep the audio
         'audioformat'                : 'mp3',  # convert to mp3
-        'outtmpl'                    : '%(id)s',    # name the file the ID of the video
+        'outtmpl'                    : '%(id)s.mp3',    # name the file the ID of the video
         'noplaylist'                 : True,    # only download single song, not playlist
         }
 
 def get_track(title):
-
     title = "ytsearch:" + title
-
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-
         track = ydl.download([title])
-
         meta = ydl.extract_info(title)
-
         return track
 
-
 def get_info(title):
-
     title = "ytsearch:" + title
-
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-
         info = ydl.extract_info(title)
-
         return info
-
-
-
-
-
-
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,19 +72,34 @@ class PlaylistSchema(ma.ModelSchema):
     class Meta:
         model = Playlist
 
-
 @app.route('/')
 def index():
+    return jsonify({'message' : 'wuz brackin'})
+
+@app.route('/api/v1/user')
+@app.route('/api/v1/users')
+def get_one_user():
     one_user = User.query.first()
     user_schema = UserSchema()
     output = user_schema.dump(one_user).data # serialize python object into json
     return jsonify({'user' : output})
 
-@app.route('/track/<track_name>')
+@app.route('/api/v1/track/<track_name>')
+@app.route('/api/v1/song/<track_name>')
+@app.route('/api/v1/youheardthatnew/<track_name>')
 def get_track_info(track_name):
     # one_user = User.query.first()
     # user_schema = UserSchema()
     # output = user_schema.dump(one_user).data # serialize python object into json
+    track_info = get_info(track_name)
+    return jsonify({ 'track_info' : track_info })
+
+
+@app.route('/api/v1/track')
+@app.route('/api/v1/song')
+@app.route('/api/v1/youheardthatnew')
+def query_track_info():
+    track_name = request.args.get('q')
     track_info = get_info(track_name)
     return jsonify({ 'track_info' : track_info })
 
