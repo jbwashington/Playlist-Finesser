@@ -7,6 +7,9 @@ from flask_restful import Resource, Api
 from flask_cors import CORS
 import youtube_dl
 
+# YOUTUBE DL CLASSES AND FUNCTIONS
+# ================================
+
 class MyLogger(object):
     """logs output from youtube """
     def debug(self, msg):
@@ -47,12 +50,18 @@ def get_info(title):
         info = ydl.extract_info(title)
         return info
 
+# FLASK APP INITIALIZATIONS
+# =========================
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# SQLALCHEMY MODELS
+# =================
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -72,6 +81,9 @@ class PlaylistSchema(ma.ModelSchema):
     class Meta:
         model = Playlist
 
+# FLASK ROUTES
+# ============
+
 @app.route('/')
 def index():
     return jsonify({'message' : 'wuz brackin'})
@@ -85,19 +97,11 @@ def get_one_user():
     return jsonify({'user' : output})
 
 @app.route('/api/v1/track/<track_name>')
-@app.route('/api/v1/song/<track_name>')
-@app.route('/api/v1/youheardthatnew/<track_name>')
 def get_track_info(track_name):
-    # one_user = User.query.first()
-    # user_schema = UserSchema()
-    # output = user_schema.dump(one_user).data # serialize python object into json
     track_info = get_info(track_name)
     return jsonify({ 'track_info' : track_info })
 
-
 @app.route('/api/v1/track')
-@app.route('/api/v1/song')
-@app.route('/api/v1/youheardthatnew')
 def query_track_info():
     track_name = request.args.get('q')
     track_info = get_info(track_name)
@@ -105,4 +109,3 @@ def query_track_info():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-
