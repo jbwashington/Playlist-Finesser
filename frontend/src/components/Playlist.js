@@ -1,10 +1,9 @@
-// import React from 'react';
-import './Playlist.css';
+import React from 'react';
 
-const playlistItems = this.videos.map(video => {
-  return (
-    {playlistItems}
-  );
-})
+const Playlist = props => (
+  <ul className="list-group">
+    { props.items.map((item, index) => <li className="list-item" key={index}>{item}</li>) }
+  </ul>
+)
 
-export default playlistItems;
+export default Playlist;

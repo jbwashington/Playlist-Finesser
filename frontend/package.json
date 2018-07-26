@@ -8,11 +8,14 @@
     "lodash.debounce": "^4.0.8",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
+    "react-hot-loader": "^4.3.3",
+    "react-player": "^1.6.4",
     "react-popper": "^1.0.0",
     "react-scripts": "1.1.4",
     "react-tap-event-plugin": "^3.0.3",
     "react-timestamp": "^4.4.0",
     "reactstrap": "^6.1.0",
+    "screenfull": "^3.3.2",
     "youtube-api-search": "^0.0.5"
   },
   "peer-dependencies": {
